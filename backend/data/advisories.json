@@ -1,0 +1,176 @@
+{
+  "Tomato___Early_blight": {
+    "crop": "Tomato",
+    "disease": "Early Blight",
+    "is_healthy": false,
+    "description": "Early blight is caused by the fungal pathogen Alternaria solani. It commonly produces target-like dark concentric rings on older leaves and stems.",
+    "symptoms": [
+      "Dark brown to black spots with concentric rings (target pattern) on lower leaves",
+      "Yellow halos around developing foliar lesions",
+      "Premature leaf drop and lower stem lesions",
+      "Reduced canopy and potential fruit sunscald"
+    ],
+    "preventive_measures": [
+      "Prune and safely discard affected lower leaves to halt spore spread.",
+      "Ensure adequate plant spacing (at least 45-60 cm) to encourage airflow.",
+      "Use drip irrigation or water at the base to keep foliage completely dry.",
+      "Rotate nightshade crops on a 2-3 year rotation cycle.",
+      "Apply clean straw or organic mulch around stems to prevent soil splash."
+    ],
+    "management": [
+      "Remove and destroy severely blighted plant residue away from fields.",
+      "Apply protective copper-based or bio-fungicidal sprays during humid conditions.",
+      "Sterilize pruning shears and gardening tools between plants.",
+      "Ensure balanced soil nutrition; avoid excessive nitrogen that produces overly dense foliage."
+    ]
+  },
+  "Tomato___Late_blight": {
+    "crop": "Tomato",
+    "disease": "Late Blight",
+    "is_healthy": false,
+    "description": "Late blight is a destructive disease caused by the oomycete Phytophthora infestans, capable of rapid spread during cool, wet, humid weather.",
+    "symptoms": [
+      "Pale green, water-soaked lesions that rapidly enlarge and turn dark brown",
+      "White fungal-like cottony growth visible on the leaf undersides in humid conditions",
+      "Dark brown, greasy lesions appearing on petioles and stems",
+      "Firm, dark, sunken rot patches on green or ripening tomato fruits"
+    ],
+    "preventive_measures": [
+      "Use certified disease-free transplants and resistant tomato varieties.",
+      "Improve air circulation and avoid overhead sprinkler watering.",
+      "Space plants sufficiently and stake or trellis vines off the ground.",
+      "Eliminate volunteer tomato and potato plants from previous growing seasons."
+    ],
+    "management": [
+      "Immediately rogue out and destroy severely infected plants to prevent field-wide epidemic.",
+      "Apply approved protective fungicide barriers before prolonged rain periods.",
+      "Refrain from working in fields when crops are wet to minimize mechanical transmission.",
+      "Dispose of infected plant matter by burying or sealing; avoid open compost piles."
+    ]
+  },
+  "Tomato___healthy": {
+    "crop": "Tomato",
+    "disease": "Healthy",
+    "is_healthy": true,
+    "description": "The tomato foliage exhibits vibrant green coloration, uniform leaf texture, and no detectable fungal, bacterial, or physiological damage.",
+    "symptoms": [
+      "No visible spots, chlorosis, curling, or lesions observed on leaves",
+      "Firm stems and uniform green canopy vigor"
+    ],
+    "preventive_measures": [
+      "Maintain consistent, root-targeted irrigation schedules to prevent blossom end rot.",
+      "Continue regular inspections of lower leaf canopies once or twice weekly.",
+      "Provide sturdy stakes or trellises to keep foliage off the ground.",
+      "Maintain mulch layer to preserve moisture and suppress weeds."
+    ],
+    "management": [
+      "Sustain balanced fertilization (NPK) according to soil test recommendations.",
+      "Keep field borders clean of weed hosts from the Solanaceae family."
+    ]
+  },
+  "Potato___Early_blight": {
+    "crop": "Potato",
+    "disease": "Early Blight",
+    "is_healthy": false,
+    "description": "Potato early blight, caused by Alternaria solani, impacts foliage and can diminish tuber size and yield under warm and humid microclimates.",
+    "symptoms": [
+      "Small dark brown to black spots with concentric ring margins on mature leaves",
+      "Progressive yellowing of leaf tissue surrounding the spots",
+      "Leaf curling and premature defoliation starting from basal leaves",
+      "Dark, sunken circular lesions with raised margins on tubers"
+    ],
+    "preventive_measures": [
+      "Plant certified disease-free seed tubers in well-draining soils.",
+      "Practice 3-year crop rotations with non-solanaceous crops such as legumes or grains.",
+      "Maintain adequate plant spacing and uniform irrigation to avoid plant stress.",
+      "Avoid overhead irrigation in late afternoons."
+    ],
+    "management": [
+      "Promptly remove and compost infected foliage hot or dispose off-site.",
+      "Apply preventive horticultural or copper sprays when weather indicates elevated blight risk.",
+      "Ensure optimal potassium and nitrogen balance to boost natural plant resilience."
+    ]
+  },
+  "Potato___Late_blight": {
+    "crop": "Potato",
+    "disease": "Late Blight",
+    "is_healthy": false,
+    "description": "Phytophthora infestans causes catastrophic foliar dieback and tuber rot in potatoes under cool, moisture-laden environmental conditions.",
+    "symptoms": [
+      "Irregular water-soaked spots on leaves turning dark brown to purplish-black",
+      "Delicate white downy growth on the underside of leaves during high relative humidity",
+      "Blackened necrotic patches on stems leading to stem collapse",
+      "Granular brown dry rot spreading inwards beneath the skin of stored tubers"
+    ],
+    "preventive_measures": [
+      "Select certified blight-free certified seed tubers and resistant cultivars.",
+      "Hill soil well over tubers to prevent spore washdown during rain.",
+      "Destroy all cull piles and volunteer potato sprouts early in the season.",
+      "Monitor local agricultural blight forecast advisories."
+    ],
+    "management": [
+      "Eradicate infected plants immediately upon early detection to protect surrounding crops.",
+      "Apply protective fungicides according to local agricultural extension warnings.",
+      "Kill potato vines at least 2 weeks before harvest to prevent tuber contamination at digging."
+    ]
+  },
+  "Potato___healthy": {
+    "crop": "Potato",
+    "disease": "Healthy",
+    "is_healthy": true,
+    "description": "Potato foliage demonstrates healthy vegetative growth, robust chlorophyll synthesis, and absence of pathogenic foliar spotting.",
+    "symptoms": [
+      "Vigorous green leaves with crisp margins and normal venation",
+      "Stems are firm and free of dark lesions or wilting signs"
+    ],
+    "preventive_measures": [
+      "Maintain steady hilling and moisture levels around root zones.",
+      "Scout fields periodically, especially after prolonged dew or rainfall.",
+      "Keep irrigation water away from direct foliar contact when feasible."
+    ],
+    "management": [
+      "Continue standard soil nutrient management and seasonal weed cultivation."
+    ]
+  },
+  "Pepper,_bell___Bacterial_spot": {
+    "crop": "Bell Pepper",
+    "disease": "Bacterial Spot",
+    "is_healthy": false,
+    "description": "Bacterial spot on pepper is caused by Xanthomonas species. It thrives in warm, wet weather and spreads rapidly through splashing water and tools.",
+    "symptoms": [
+      "Small, water-soaked, circular to irregular dark brown spots on leaves",
+      "Spots may have a yellow halo and centers may drop out creating a shot-hole appearance",
+      "Severe leaf yellowing and defoliation exposing peppers to sunscald",
+      "Raised, rough, scab-like spots on bell pepper fruit"
+    ],
+    "preventive_measures": [
+      "Use certified disease-free, hot-water treated seeds or resistant pepper hybrids.",
+      "Avoid overhead sprinkler irrigation; employ drip tape or soaker hoses.",
+      "Never work with or harvest pepper plants when leaves are wet from rain or dew.",
+      "Sanitize stakes, containers, and tools regularly with disinfectant."
+    ],
+    "management": [
+      "Remove and safely dispose of infected plants showing extensive bacterial spots.",
+      "Apply copper bactericide sprays combined with mancozeb as recommended by local extension.",
+      "Practice multi-year crop rotation avoiding other solanaceous crops."
+    ]
+  },
+  "Pepper,_bell___healthy": {
+    "crop": "Bell Pepper",
+    "disease": "Healthy",
+    "is_healthy": true,
+    "description": "Bell pepper plant shows vibrant foliage, healthy dark green leaves, sturdy branching, and no symptoms of bacterial or viral infection.",
+    "symptoms": [
+      "Uniform green leaves without spots, necrosis, or edge burning",
+      "Healthy branching stems and strong flowering/fruiting canopy"
+    ],
+    "preventive_measures": [
+      "Maintain steady root watering to avoid calcium deficiency and blossom end rot.",
+      "Provide supportive stakes or cages to keep heavy branches upright.",
+      "Mulch soil bed to stabilize moisture and reduce soil-borne pathogen splashing."
+    ],
+    "management": [
+      "Monitor weekly for aphid or thrip vectors and inspect leaf undersides periodically."
+    ]
+  }
+}
