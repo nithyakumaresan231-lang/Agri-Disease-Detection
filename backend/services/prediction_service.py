@@ -1,28 +1,22 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Optional, Dict, Any
-import hashlib
+
+import cv2
+import numpy as np
+import joblib
 
 from services.advisory_service import advisory_service
 
-# Path where trained model will reside in the future
-ML_DIR = Path(__file__).resolve().parent.parent.parent / "ml"
-MODEL_PATH = ML_DIR / "models" / "disease_model.pth"
 
-# 8 PlantVillage target classes
-SUPPORTED_CLASSES = [
-    "Tomato___Early_blight",
-    "Tomato___Late_blight",
-    "Tomato___healthy",
-    "Potato___Early_blight",
-    "Potato___Late_blight",
-    "Potato___healthy",
-    "Pepper,_bell___Bacterial_spot",
-    "Pepper,_bell___healthy"
-]
+# ML model location
+ML_DIR = Path(__file__).resolve().parent.parent / "ml"
+MODEL_PATH = ML_DIR / "models" / "disease_model.pkl"
+CLASSES_PATH = ML_DIR / "models" / "classes.pkl"
 
 
 class BasePredictionService(ABC):
+
     @abstractmethod
     async def predict(
         self,
@@ -35,13 +29,35 @@ class BasePredictionService(ABC):
         pass
 
 
-class MockPredictionService(BasePredictionService):
-    """
-    Deterministic mock prediction service.
-    Defaults to Tomato Early Blight (94.2% confidence) as requested,
-    while also allowing deterministic class selection if the filename mentions
-    a specific class or crop for testing purposes.
-    """
+class MLPredictionService(BasePredictionService):
+
+    def __init__(self):
+        self.model = None
+        self.classes = []
+
+        try:
+            self.model = joblib.load(MODEL_PATH)
+            self.classes = joblib.load(CLASSES_PATH)
+
+            print("[MLPredictionService] Random Forest model loaded successfully")
+            print("[MLPredictionService] Classes:", self.classes)
+
+        except Exception as e:
+            print("[MLPredictionService] Model loading error:", e)
+
+    def _get_backend_class(self, class_name):
+        mapping = {
+            "tomato early blight": "Tomato___Early_blight",
+            "tomato late blight": "Tomato___Late_blight",
+            "tomato healthy": "Tomato___healthy",
+            "potato early blight": "Potato___Early_blight",
+            "potato late blight": "Potato___Late_blight",
+            "potato healthy": "Potato___healthy",
+            "pepper bell bacterial spot": "Pepper,_bell___Bacterial_spot",
+            "pepper bell healthy": "Pepper,_bell___healthy"
+        }
+
+        return mapping.get(class_name.lower(), class_name)
 
     async def predict(
         self,
@@ -51,49 +67,70 @@ class MockPredictionService(BasePredictionService):
         humidity: Optional[float] = None,
         soil_moisture: Optional[float] = None
     ) -> Dict[str, Any]:
-        lower_name = (filename or "").lower()
 
-        # Check for specific hints in the filename for testing different classes
-        selected_class = None
-        confidence = 94.2
+        if self.model is None:
+            return {
+                "crop": "Unknown",
+                "disease": "Model not loaded",
+                "confidence": 0,
+                "status": "Error",
+                "advisory": {}
+            }
 
-        if "potato" in lower_name and "late" in lower_name:
-            selected_class = "Potato___Late_blight"
-            confidence = 93.8
-        elif "potato" in lower_name and "healthy" in lower_name:
-            selected_class = "Potato___healthy"
-            confidence = 98.1
-        elif "potato" in lower_name:
-            selected_class = "Potato___Early_blight"
-            confidence = 92.5
-        elif "pepper" in lower_name and "healthy" in lower_name:
-            selected_class = "Pepper,_bell___healthy"
-            confidence = 97.4
-        elif "pepper" in lower_name:
-            selected_class = "Pepper,_bell___Bacterial_spot"
-            confidence = 91.6
-        elif "tomato" in lower_name and "healthy" in lower_name:
-            selected_class = "Tomato___healthy"
-            confidence = 96.7
-        elif "tomato" in lower_name and "late" in lower_name:
-            selected_class = "Tomato___Late_blight"
-            confidence = 95.0
-        else:
-            # Default deterministic prediction per specification
-            selected_class = "Tomato___Early_blight"
-            confidence = 94.2
+        # Convert uploaded image to OpenCV image
+        image_array = np.frombuffer(image_bytes, np.uint8)
+        image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
 
-        adv = advisory_service.get_by_class(selected_class)
+        if image is None:
+            return {
+                "crop": "Unknown",
+                "disease": "Invalid image",
+                "confidence": 0,
+                "status": "Error",
+                "advisory": {}
+            }
+
+        # Same preprocessing used during training
+        image = cv2.resize(image, (32, 32))
+        image = image.flatten().reshape(1, -1)
+
+        # Prediction
+        prediction = self.model.predict(image)[0]
+        probabilities = self.model.predict_proba(image)[0]
+
+        class_name = self.classes[int(prediction)]
+        confidence = float(probabilities[int(prediction)] * 100)
+
+        # Convert class name to backend format
+        backend_class = self._get_backend_class(class_name)
+
+        # Get advisory
+        adv = advisory_service.get_by_class(backend_class)
+
         if not adv:
-            adv = advisory_service.get_fallback("Tomato", "Early Blight")
+            crop = class_name.split()[0].capitalize()
+
+            if "healthy" in class_name.lower():
+                disease = "Healthy"
+            elif "early" in class_name.lower():
+                disease = "Early Blight"
+            elif "late" in class_name.lower():
+                disease = "Late Blight"
+            elif "bacterial" in class_name.lower():
+                disease = "Bacterial Spot"
+            else:
+                disease = "Unknown"
+
+            adv = advisory_service.get_fallback(crop, disease)
 
         is_healthy = adv.get("is_healthy", False)
+
         status = "Healthy" if is_healthy else "Disease Detected"
 
         return {
-            "crop": adv.get("crop", "Tomato"),
-            "disease": adv.get("disease", "Early Blight"),
-            "confidence": confidence,
+            "crop": adv.get("crop", class_name.split()[0].capitalize()),
+            "disease": adv.get("disease", class_name),
+            "confidence": round(confidence, 2),
             "status": status,
             "advisory": {
                 "description": adv.get("description", ""),
@@ -104,67 +141,8 @@ class MockPredictionService(BasePredictionService):
         }
 
 
-class MLPredictionService(BasePredictionService):
-    """
-    Production ML prediction service.
-    This structure is ready to load the trained PyTorch or TensorFlow model from ml/models/.
-    When model file is present, performs 224x224 RGB image preprocessing and inference.
-    Falls back gracefully to MockPredictionService if weights are not yet deployed.
-    """
-
-    def __init__(self, model_path: Path = MODEL_PATH):
-        self.model_path = model_path
-        self.mock_fallback = MockPredictionService()
-        self.model_loaded = False
-        self._check_model()
-
-    def _check_model(self):
-        if self.model_path.exists():
-            try:
-                # Placeholder for torch.load or keras.models.load_model
-                print(f"[MLPredictionService] Found trained model at {self.model_path}")
-                self.model_loaded = True
-            except Exception as e:
-                print(f"[MLPredictionService] Error loading model: {e}")
-                self.model_loaded = False
-        else:
-            self.model_loaded = False
-
-    async def predict(
-        self,
-        image_bytes: bytes,
-        filename: str,
-        temperature: Optional[float] = None,
-        humidity: Optional[float] = None,
-        soil_moisture: Optional[float] = None
-    ) -> Dict[str, Any]:
-        if not self.model_loaded:
-            # When model is not yet trained/available, use mock service
-            return await self.mock_fallback.predict(
-                image_bytes,
-                filename,
-                temperature,
-                humidity,
-                soil_moisture
-            )
-
-        # Preprocessing pipeline for future ML model:
-        # 1. Decode image bytes to RGB (PIL Image)
-        # 2. Resize to 224x224
-        # 3. Normalize (e.g. mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-        # 4. Forward pass -> Softmax -> top class & confidence
-        # 5. Fetch advisory from advisory_service for predicted class
-        return await self.mock_fallback.predict(
-            image_bytes,
-            filename,
-            temperature,
-            humidity,
-            soil_moisture
-        )
-
-
-# Factory function
-_prediction_service_instance: BasePredictionService = MockPredictionService()
+# Use the real ML prediction service
+_prediction_service_instance = MLPredictionService()
 
 
 def get_prediction_service() -> BasePredictionService:
