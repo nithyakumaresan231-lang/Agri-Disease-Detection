@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+backend/uploads/
+backend/agri_advisory.db
+dataset/
+backend/VENV/
+backend/agri_advisory.db

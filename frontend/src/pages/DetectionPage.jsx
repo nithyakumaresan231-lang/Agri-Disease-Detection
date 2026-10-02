@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+﻿import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Upload,
@@ -51,7 +51,7 @@ export default function DetectionPage() {
     setCameraError("");
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "environment" }
+        video:true
       });
       mediaStreamRef.current = stream;
       setIsCameraActive(true);
