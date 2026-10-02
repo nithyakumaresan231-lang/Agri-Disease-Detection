@@ -2,6 +2,9 @@ __pycache__/
 *.pyc
 backend/uploads/
 backend/agri_advisory.db
-dataset/
+dataset/*
+!dataset/**/*.jpg
+!dataset/**/*.jpeg
+!dataset/**/*.png
 backend/VENV/
 backend/agri_advisory.db
