@@ -33,6 +33,7 @@ export default function DetectionPage() {
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
   const [voiceText, setVoiceText] = useState("");
+  const [voiceLanguage, setVoiceLanguage] = useState("en-IN");
 const [isListening, setIsListening] = useState(false);
 const recognitionRef = useRef(null);
 
@@ -46,7 +47,7 @@ const startListening = () => {
   }
 
   const recognition = new SpeechRecognition();
-  recognition.lang = "en-IN";
+  recognition.lang = voiceLanguage;
   recognition.continuous = false;
   recognition.interimResults = false;
 
@@ -232,6 +233,15 @@ const stopListening = () => {
 <div className="detection-card">
   <h3>Voice Input</h3>
   <p>Speak to enter your agricultural question.</p>
+  <label htmlFor="voiceLanguage">Choose speech language:</label>
+<select
+  id="voiceLanguage"
+  value={voiceLanguage}
+  onChange={(e) => setVoiceLanguage(e.target.value)}
+>
+  <option value="en-IN">English</option>
+  <option value="ta-IN">தமிழ் (Tamil)</option>
+</select>
 
   <button
     type="button"
