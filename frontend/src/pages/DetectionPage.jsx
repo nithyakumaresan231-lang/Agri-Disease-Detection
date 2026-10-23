@@ -11,7 +11,9 @@ import {
   FileText,
   Thermometer,
   Droplets,
-  Wind
+  Wind,
+  Mic,
+  MicOff
 } from "lucide-react";
 import { predictionAPI } from "../services/api";
 
@@ -30,6 +32,41 @@ export default function DetectionPage() {
   const mediaStreamRef = useRef(null);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
+  const [voiceText, setVoiceText] = useState("");
+const [isListening, setIsListening] = useState(false);
+const recognitionRef = useRef(null);
+
+const startListening = () => {
+  const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+    alert("Speech recognition is not supported. Please use Chrome or Edge.");
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = "en-IN";
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
+  recognition.onstart = () => setIsListening(true);
+
+  recognition.onresult = (event) => {
+    setVoiceText(event.results[0][0].transcript);
+  };
+
+  recognition.onerror = () => setIsListening(false);
+  recognition.onend = () => setIsListening(false);
+
+  recognitionRef.current = recognition;
+  recognition.start();
+};
+
+const stopListening = () => {
+  recognitionRef.current?.stop();
+  setIsListening(false);
+};
 
   // Clean up media stream on unmount
   useEffect(() => {
@@ -65,6 +102,7 @@ export default function DetectionPage() {
       );
     }
   };
+  
 
   // Sync video element when camera is activated
   useEffect(() => {
@@ -190,7 +228,26 @@ export default function DetectionPage() {
           <span>{error}</span>
         </div>
       )}
+      {/* Voice Input Section */}
+<div className="detection-card">
+  <h3>Voice Input</h3>
+  <p>Speak to enter your agricultural question.</p>
 
+  <button
+    type="button"
+    onClick={isListening ? stopListening : startListening}
+  >
+    {isListening ? <MicOff size={18} /> : <Mic size={18} />}
+    {isListening ? " Stop Listening" : " Speak Now"}
+  </button>
+
+  <textarea
+    value={voiceText}
+    onChange={(e) => setVoiceText(e.target.value)}
+    placeholder="Your spoken words will appear here..."
+    rows={3}
+  />
+</div>
       {/* Main Detection Card */}
       <div className="detection-card">
         <div className="card-top-bar">

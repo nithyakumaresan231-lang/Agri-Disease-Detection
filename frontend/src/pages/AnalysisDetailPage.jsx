@@ -81,11 +81,68 @@ export default function AnalysisDetailPage() {
 
   const isHealthy = analysis.status?.toLowerCase() === "healthy";
   const advisory = analysis.advisory || {};
+  const speakAnalysis = () => {
+  if (!("speechSynthesis" in window)) {
+    alert("Text-to-speech is not supported in this browser.");
+    return;
+  }
+
+  window.speechSynthesis.cancel();
+
+  const textToRead = [
+    `Crop: ${analysis.crop}`,
+    `Disease: ${analysis.disease}`,
+    `Status: ${analysis.status}`,
+    `Confidence: ${analysis.confidence} percent`,
+    `Disease information: ${advisory.description || ""}`,
+    `Symptoms: ${(advisory.symptoms || []).join(". ")}`,
+    `Preventive measures: ${(advisory.preventive_measures || []).join(". ")}`,
+    `Management: ${(advisory.management || []).join(". ")}`
+  ].join(". ");
+
+  const utterance = new SpeechSynthesisUtterance(textToRead);
+  utterance.lang = "en-IN";
+  window.speechSynthesis.speak(utterance);
+};
+
+const stopSpeaking = () => {
+  window.speechSynthesis.cancel();
+};
 
   return (
     <div className="analysis-view">
-      {/* Top action bar */}
-      <div className="analysis-navigation-bar">
+  {/* Top action bar */}
+  <div className="analysis-navigation-bar">
+
+    <button
+      type="button"
+      className="btn-new-scan"
+      onClick={speakAnalysis}
+    >
+      🔊 Read Aloud
+    </button>
+
+    <button
+      type="button"
+      className="btn-back"
+      onClick={stopSpeaking}
+    >
+      ⏹ Stop Speaking
+    </button>
+
+    <button
+      type="button"
+      className="btn-back"
+      onClick={() => navigate("/history")}
+    >
+      <ArrowLeft size={18} />
+      <span>Back to History</span>
+    </button>
+
+    <Link to="/detect" className="btn-new-scan">
+      <Camera size={16} />
+      <span>Run Another Scan</span>
+    </Link>
         <button
           type="button"
           className="btn-back"
