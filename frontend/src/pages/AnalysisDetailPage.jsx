@@ -24,6 +24,7 @@ export default function AnalysisDetailPage() {
   const [analysis, setAnalysis] = useState(location.state?.result || null);
   const [loading, setLoading] = useState(!location.state?.result);
   const [error, setError] = useState("");
+  const [language, setLanguage] = useState("en-IN");
 
   useEffect(() => {
     async function fetchDetail() {
@@ -89,22 +90,17 @@ export default function AnalysisDetailPage() {
 
   window.speechSynthesis.cancel();
 
-  const textToRead = [
-    `Crop: ${analysis.crop}`,
-    `Disease: ${analysis.disease}`,
-    `Status: ${analysis.status}`,
-    `Confidence: ${analysis.confidence} percent`,
-    `Disease information: ${advisory.description || ""}`,
-    `Symptoms: ${(advisory.symptoms || []).join(". ")}`,
-    `Preventive measures: ${(advisory.preventive_measures || []).join(". ")}`,
-    `Management: ${(advisory.management || []).join(". ")}`
-  ].join(". ");
+  const isTamil = language === "ta-IN";
+
+  const textToRead = isTamil
+    ? `பயிர்: ${analysis.crop}. நோய்: ${analysis.disease}. நிலை: ${analysis.status}. நம்பகத்தன்மை: ${analysis.confidence} சதவீதம். நோய் விவரம்: ${advisory.description || ""}. அறிகுறிகள்: ${(advisory.symptoms || []).join(". ")}. தடுப்பு முறைகள்: ${(advisory.preventive_measures || []).join(". ")}. மேலாண்மை: ${(advisory.management || []).join(". ")}.`
+    : `Crop: ${analysis.crop}. Disease: ${analysis.disease}. Status: ${analysis.status}. Confidence: ${analysis.confidence} percent. Disease information: ${advisory.description || ""}. Symptoms: ${(advisory.symptoms || []).join(". ")}. Preventive measures: ${(advisory.preventive_measures || []).join(". ")}. Management: ${(advisory.management || []).join(". ")}.`;
 
   const utterance = new SpeechSynthesisUtterance(textToRead);
-  utterance.lang = "en-IN";
+  utterance.lang = language;
+
   window.speechSynthesis.speak(utterance);
 };
-
 const stopSpeaking = () => {
   window.speechSynthesis.cancel();
 };
@@ -113,7 +109,14 @@ const stopSpeaking = () => {
     <div className="analysis-view">
   {/* Top action bar */}
   <div className="analysis-navigation-bar">
-
+      <select
+  value={language}
+  onChange={(e) => setLanguage(e.target.value)}
+  aria-label="Select voice language"
+>
+  <option value="en-IN">English</option>
+  <option value="ta-IN">தமிழ் (Tamil)</option>
+</select>
     <button
       type="button"
       className="btn-new-scan"
@@ -136,19 +139,7 @@ const stopSpeaking = () => {
       onClick={() => navigate("/history")}
     >
       <ArrowLeft size={18} />
-      <span>Back to History</span>
-    </button>
-
-    <Link to="/detect" className="btn-new-scan">
-      <Camera size={16} />
-      <span>Run Another Scan</span>
-    </Link>
-        <button
-          type="button"
-          className="btn-back"
-          onClick={() => navigate("/history")}
-        >
-          <ArrowLeft size={18} />
+      
           <span>Back to History</span>
         </button>
 
