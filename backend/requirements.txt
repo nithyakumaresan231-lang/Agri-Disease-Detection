@@ -7,4 +7,6 @@ bcrypt
 email-validator
 opencv-python
 joblib
-
+torch
+transformers
+sentencepiece
