@@ -101,3 +101,15 @@ export const profileAPI = {
 };
 
 export { API_BASE_URL };
+
+export const translationAPI = {
+  translateReport: (report, language) =>
+    request("/translate-report", {
+      method: "POST",
+      body: JSON.stringify({
+        report,
+        language
+      })
+    })
+};
+
