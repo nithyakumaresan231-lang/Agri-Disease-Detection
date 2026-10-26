@@ -113,3 +113,9 @@ export const translationAPI = {
     })
 };
 
+export const sensorAPI = {
+  getStatus: () => request('/sensor/status'),
+  getLatest: () => request('/sensor/latest'),
+  getSample: () => request('/sensor/sample'),
+  getHistory: (limit = 50) => request(`/sensor/history?limit=${limit}`)
+};

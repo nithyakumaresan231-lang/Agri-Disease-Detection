@@ -11,7 +11,11 @@ import {
   Camera,
   Calendar,
   Layers,
-  AlertCircle
+  AlertCircle,
+  Thermometer,
+  Droplets,
+  Activity,
+  Cpu
 } from "lucide-react";
 import {
   historyAPI,
@@ -201,7 +205,16 @@ export default function AnalysisDetailPage() {
         translating: "மொழிபெயர்க்கப்படுகிறது...",
         translationFailed: "மொழிபெயர்ப்பு தோல்வியடைந்தது.",
         healthy: "ஆரோக்கியமானது",
-        diseased: "நோய் கண்டறியப்பட்டது"
+        diseased: "நோய் கண்டறியப்பட்டது",
+        environmentalTitle: "சுற்றுச்சூழல் & ஐஓடி சென்சார் தரவு",
+        environmentalDesc: "நோயறிதலின் போது பதிவான நுண்காலநிலை சென்சார் அளவீடுகள்",
+        environmentalAssessment: "சுற்றுச்சூழல் இடர் மதிப்பீடு",
+        sensorAlertsTitle: "நுண்காலநிலை இடர் எச்சரிக்கைகள்",
+        tempLabel: "வெப்பநிலை",
+        humLabel: "ஈரப்பதம்",
+        gatewaySource: "நேரடி ஐஓடி கேட்வே (PH-1)",
+        demoSource: "மாதிரி / வரலாற்று தரவு",
+        manualSource: "பதிவுசெய்யப்பட்ட தரவு"
       }
     : {
         loading: "Translating report...",
@@ -229,7 +242,16 @@ export default function AnalysisDetailPage() {
         translating: "Translating...",
         translationFailed: "Translation failed.",
         healthy: "Healthy",
-        diseased: "Disease detected"
+        diseased: "Disease detected",
+        environmentalTitle: "Microclimate & IoT Sensor Correlation",
+        environmentalDesc: "Microclimate sensor telemetry recorded during diagnostic evaluation",
+        environmentalAssessment: "Environmental Risk Assessment",
+        sensorAlertsTitle: "Microclimate Alerts",
+        tempLabel: "Temperature",
+        humLabel: "Relative Humidity",
+        gatewaySource: "Live IoT Gateway (PH-1)",
+        demoSource: "Historical / Demo Data",
+        manualSource: "Recorded Sensor Input"
       };
 
   const displayCrop = report.crop || analysis.crop || "";
@@ -435,6 +457,78 @@ export default function AnalysisDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Environmental Microclimate & Sensor Correlation */}
+      {(originalAdvisory.environmental_assessment ||
+        (originalAdvisory.sensor_alerts && originalAdvisory.sensor_alerts.length > 0) ||
+        analysis.temperature != null ||
+        analysis.humidity != null) && (
+        <div className="environmental-correlation-card">
+          <div className="subsystem-card-header">
+            <div className="subsystem-title-box">
+              <div className="icon-badge bg-emerald-50">
+                <Activity size={20} color="#059669" />
+              </div>
+              <div>
+                <h3>{labels.environmentalTitle}</h3>
+                <p className="section-desc">{labels.environmentalDesc}</p>
+              </div>
+            </div>
+            {originalAdvisory.data_source && (
+              <span className="status-pill pill-healthy">
+                <Cpu size={13} />
+                <span>
+                  {originalAdvisory.data_source === "live_gateway"
+                    ? labels.gatewaySource
+                    : originalAdvisory.data_source === "demo_sample"
+                    ? labels.demoSource
+                    : labels.manualSource}
+                </span>
+              </span>
+            )}
+          </div>
+
+          <div className="overview-meta-chips" style={{ marginTop: "14px" }}>
+            {analysis.temperature != null && (
+              <div className="chip">
+                <Thermometer size={15} color="#d97706" />
+                <span className="chip-label">{labels.tempLabel}:</span>
+                <strong className="chip-val">{analysis.temperature} °C</strong>
+              </div>
+            )}
+            {analysis.humidity != null && (
+              <div className="chip">
+                <Droplets size={15} color="#2563eb" />
+                <span className="chip-label">{labels.humLabel}:</span>
+                <strong className="chip-val">{analysis.humidity} %</strong>
+              </div>
+            )}
+          </div>
+
+          {originalAdvisory.environmental_assessment && (
+            <div className="env-assessment-box">
+              <strong>{labels.environmentalAssessment}: </strong>
+              <span>{originalAdvisory.environmental_assessment}</span>
+            </div>
+          )}
+
+          {originalAdvisory.sensor_alerts && originalAdvisory.sensor_alerts.length > 0 && (
+            <div style={{ marginTop: "14px" }}>
+              <strong style={{ fontSize: "13px", color: "var(--text-muted)" }}>
+                {labels.sensorAlertsTitle}:
+              </strong>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "6px" }}>
+                {originalAdvisory.sensor_alerts.map((alertText, idx) => (
+                  <span key={idx} className="env-alert-pill">
+                    <AlertTriangle size={14} color="#b45309" />
+                    <span>{alertText}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Disease Information */}
       {advisory.description && (

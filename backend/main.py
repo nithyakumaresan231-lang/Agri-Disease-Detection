@@ -12,6 +12,7 @@ from api.auth import router as auth_router
 from api.prediction import router as prediction_router
 from api.history import router as history_router
 from api.profile import router as profile_router
+from api.sensor import router as sensor_router
 from translation_service import translate_report
 
 
@@ -62,6 +63,7 @@ app.include_router(auth_router)
 app.include_router(prediction_router)
 app.include_router(history_router)
 app.include_router(profile_router)
+app.include_router(sensor_router)
 
 
 # Root endpoint

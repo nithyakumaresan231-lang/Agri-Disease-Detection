@@ -1,0 +1,163 @@
+============================================================
+ POLY HOUSE - Cloud Server (MySQL) SETUP GUIDE
+ Folder : cloud_server
+============================================================
+
+Enna iruku:
+  server.py          -> HTTP server (device data upload -> MySQL) + relay control panel
+  mysql_config.json  -> MySQL connection details (edit pannanum)
+  schema.sql         -> MySQL database + tables (one time)
+  commands.json      -> Device poll panna command list (auto-write aagum)
+
+------------------------------------------------------------
+STEP 1 - MySQL database create pannu (ONLY ONE TIME)
+------------------------------------------------------------
+1. Command Prompt (cmd) open pannu
+2. Ithu run pannu (un root password ketkum):
+
+   "C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" -u root -p < "C:\my projects\mit project\MIT_BACKUP\cloud_server\schema.sql"
+
+3. password type pannu -> Enter. Error varala na database ready.
+
+------------------------------------------------------------
+STEP 2 - MySQL password config la podu
+------------------------------------------------------------
+1. cloud_server folder la mysql_config.json open pannu (Notepad)
+2. "password": "YOUR_MYSQL_ROOT_PASSWORD"  ->  un root password ah
+   inga podu. Example:
+     "password": "mysecret123"
+3. Save pannu (Ctrl+S)
+
+------------------------------------------------------------
+STEP 3 - Driver install (first time only)
+------------------------------------------------------------
+Command Prompt la run pannu:
+
+   py -m pip install pymysql
+
+------------------------------------------------------------
+STEP 4 - Server start pannu
+------------------------------------------------------------
+   py "C:\my projects\mit project\MIT_BACKUP\cloud_server\server.py"
+
+Console la intha maathiri varum:
+   [SERVER] Listening : http://0.0.0.0:50503
+
+Server OPEN ah irukanum, close pannakoodadhu.
+
+------------------------------------------------------------
+STEP 5 - Device settings la URL paste pannu
+------------------------------------------------------------
+Rendu vazhi (edaavathu oru):
+
+A) DIRECT FILE (simple):
+   MIT_BACKUP\cloud_config.json open pannu. Itha set pannu:
+
+   "post_url":  "http://127.0.0.1:50503/api/data"
+   "poll_url":  "http://127.0.0.1:50503/api/commands"
+   "ack_url":   "http://127.0.0.1:50503/api/ack"
+
+   Device (modbus.py) same laptop la run aaguthu na 127.0.0.1 podu.
+   Device VERA machine la (Raspberry Pi pole) iruntha 127.0.0.1
+   podakoodadhu - atharku STEP 6 pakka.
+
+B) DASHBOARD SETTINGS PAGE (web UI):
+   Device dashboard open pannu -> Settings -> Cloud / HTTP Gateway
+   section la:
+     - POST URL:    http://127.0.0.1:50503/api/data
+     - Poll URL:    http://127.0.0.1:50503/api/commands
+     - Ack URL:     http://127.0.0.1:50503/api/ack
+   Save Cloud Settings click pannu.
+
+------------------------------------------------------------
+STEP 6 - Device vera machine la iruntha (LAN)
+------------------------------------------------------------
+Device same laptop la ila na, laptop oda LAN IP venum:
+
+1. Command Prompt la run:
+     ipconfig
+2. "IPv4 Address" line la irukura IP (example: 192.168.1.50)
+3. 127.0.0.1 ku pathila ANTHA IP podu:
+     http://192.168.1.50:50503/api/data
+     http://192.168.1.50:50503/api/commands
+     http://192.168.1.50:50503/api/ack
+4. Laptop firewall la port 50503 allow pannanum
+   (Windows Defender Firewall -> Advanced -> Inbound Rule
+   -> New Rule -> Port -> TCP 50503 -> Allow)
+
+------------------------------------------------------------
+STEP 7 - Check pannu (data MySQL la save aagutha)
+------------------------------------------------------------
+Server console la "saved from PH-1" nu varutha? Varuthu na
+upload aaguthu.
+
+MySQL la verify pannu:
+   "C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" -u root -p
+   Enter password:
+   USE polyhouse;
+   SELECT id, device_id, ts, created_at FROM device_data ORDER BY id DESC LIMIT 10;
+   SELECT COUNT(*) FROM device_data;
+
+Rows vanthucha na data MySQL la save aagudhu. Done!
+
+------------------------------------------------------------
+RELAY CONTROL PANEL (each relay individually ON/OFF)
+------------------------------------------------------------
+1. Server run aagura vazhi:
+   py "C:\my projects\mit project\MIT_BACKUP\cloud_server\server.py"
+
+2. Laptop browser la open pannu:
+   http://192.168.29.106:50503
+
+3. Relays list varum (slave + coil + name):
+   Slave 1 : FAN1, FAN2, FOGGER, HONEYCOMB, OUT5-8
+   Slave 2 : PUMP1, PUMP2, PUMP3, PUMP4
+
+4. ON / OFF button click pannu -> command device ku anupum
+   (device 10s poll la execute pannum). Ack MySQL commands_log
+   la save aagum. Current state latest upload ah display aagum.
+
+API (manually um send pannalam, Postman/curl):
+   POST http://192.168.29.106:50503/api/relay/control
+   Body: { "slave_id": 2, "address": 0, "state": true }
+   POST http://192.168.29.106:50503/api/relay/clear   -> pending commands clear
+
+------------------------------------------------------------
+COMMANDS ANUPURADHU (poll test)
+------------------------------------------------------------
+1. cloud_server\commands.json open pannu
+2. commands array la command podu, example:
+
+   {
+     "commands": [
+       { "command": "relay_control", "relay_name": "PUMP1", "state": true, "request_id": "t1" },
+       { "command": "mode", "mode": "auto" },
+       { "command": "ping", "request_id": "t2" }
+     ]
+   }
+
+3. Save pannu -> server.py restart pannu (Ctrl+C then py server.py)
+4. Device adutha poll la atha execute pannum, ack MySQL commands_log
+   la save aagum.
+
+   NOTE: relay_control real relay ah ON/OFF pannum. Test pannra
+   na PUMP/pump connection la kavanama iru.
+
+------------------------------------------------------------
+TROUBLESHOOTING
+------------------------------------------------------------
+* "Access denied for user 'root'"  -> mysql_config.json la password
+  check pannu. Password la @, # iruntha JSON nu quote la kavani.
+
+* "Can't connect to MySQL" -> MySQL server run aagutha check pannu:
+  Services -> "MySQL80" status Running.
+
+* "ModuleNotFoundError: No module named 'pymysql'" -> STEP 3 run
+  pannu.
+
+* Device "connection error" -> server open ah, URL correct ah check.
+  Vera machine na firewall STEP 6.
+
+* 50503 port already occupied na -> mysql_config.json la http_port
+  maathu (example 50504) and device URLs laum antha port podu.
+============================================================

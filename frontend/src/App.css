@@ -2759,3 +2759,232 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+/* --------------------------------------------------------------------------
+   SENSOR MONITORING VIEW & COMBINED TELEMETRY CARDS
+   -------------------------------------------------------------------------- */
+.sensor-monitoring-view {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.sensor-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.sensor-header-titles h2 {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 4px;
+}
+
+.sensor-header-titles p {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.sensor-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-sensor-mode {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid var(--border-strong);
+  background: #ffffff;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-sensor-mode.active {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: #ffffff;
+}
+
+.btn-sensor-refresh {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid var(--border-strong);
+  background: #ffffff;
+  color: var(--text-main);
+  cursor: pointer;
+}
+
+.btn-sensor-refresh:hover:not(:disabled) {
+  background-color: #f4f8f5;
+}
+
+.status-badge-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.status-banner-live {
+  background-color: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+}
+
+.status-banner-demo {
+  background-color: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1e40af;
+}
+
+.status-banner-offline {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+}
+
+.sensor-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.sensor-subsystem-card {
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.subsystem-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.subsystem-title-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.subsystem-title-box h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.metrics-row-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 14px;
+}
+
+.metric-tile {
+  background-color: #fbfdfb;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+}
+
+.metric-tile-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.metric-tile-value {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.2;
+}
+
+.metric-tile-hint {
+  font-size: 11px;
+  color: #8b9c8f;
+  margin-top: 4px;
+}
+
+.payload-inspector-card {
+  background: #1e293b;
+  color: #e2e8f0;
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.payload-inspector-card pre {
+  margin-top: 12px;
+  background: #0f172a;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+  font-family: monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #38bdf8;
+}
+
+.environmental-correlation-card {
+  background: linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%);
+  border: 1px solid #bbf7d0;
+  border-radius: var(--radius-lg);
+  padding: 24px 28px;
+  box-shadow: var(--shadow-sm);
+}
+
+.env-assessment-box {
+  background: #ffffff;
+  border: 1px solid #dcfce7;
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-top: 14px;
+  color: #166534;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.env-alert-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background-color: #fffbeb;
+  border: 1px solid #fde68a;
+  color: #92400e;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-right: 8px;
+  margin-top: 8px;
+}

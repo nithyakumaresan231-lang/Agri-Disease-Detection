@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Upload,
@@ -15,7 +15,7 @@ import {
   Mic,
   MicOff
 } from "lucide-react";
-import { predictionAPI } from "../services/api";
+import { predictionAPI, sensorAPI } from "../services/api";
 
 export default function DetectionPage() {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -24,6 +24,12 @@ export default function DetectionPage() {
   const [dragging, setDragging] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Live IoT sensor telemetry state
+  const [sensorStatus, setSensorStatus] = useState("checking");
+  const [sensorReading, setSensorReading] = useState(null);
+  const [sensorDeviceId, setSensorDeviceId] = useState("PH-1");
+  const [includeSensors, setIncludeSensors] = useState(true);
 
   // Webcam state
   const [isCameraActive, setIsCameraActive] = useState(false);
@@ -73,6 +79,34 @@ const stopListening = () => {
   useEffect(() => {
     return () => {
       stopCameraStream();
+    };
+  }, []);
+
+  // Poll sensor telemetry on mount
+  useEffect(() => {
+    let cancelled = false;
+    async function checkSensors() {
+      try {
+        const data = await sensorAPI.getLatest();
+        if (cancelled) return;
+        if (data && (data.status === "connected" || data.status === "stale")) {
+          setSensorStatus("connected");
+          setSensorReading(data.reading);
+          if (data.reading?.device_id) setSensorDeviceId(data.reading.device_id);
+        } else {
+          setSensorStatus("offline");
+          setSensorReading(null);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setSensorStatus("offline");
+          setSensorReading(null);
+        }
+      }
+    }
+    checkSensors();
+    return () => {
+      cancelled = true;
     };
   }, []);
 
@@ -201,6 +235,14 @@ const stopListening = () => {
 
     const formData = new FormData();
     formData.append("file", selectedFile);
+    if (includeSensors && sensorReading) {
+      if (sensorReading.temp_avg != null) {
+        formData.append("temperature", sensorReading.temp_avg);
+      }
+      if (sensorReading.humidity_avg != null) {
+        formData.append("humidity", sensorReading.humidity_avg);
+      }
+    }
 
     try {
       const result = await predictionAPI.predict(formData);
@@ -417,48 +459,68 @@ const stopListening = () => {
         />
       </div>
 
-      {/* OPTIONAL SENSOR SECTION (PHASE 2) */}
+      {/* ENVIRONMENTAL SENSORS SECTION */}
       <div className="sensors-card">
         <div className="sensors-header">
           <div>
-            <span className="phase2-tag">PHASE 2</span>
-            <h3>Environmental Sensors</h3>
+            <span
+              className="phase2-tag"
+              style={{
+                background: sensorStatus === "connected" ? "#dcfce7" : "#fee2e2",
+                color: sensorStatus === "connected" ? "#166534" : "#991b1b"
+              }}
+            >
+              {sensorStatus === "connected" ? "LIVE TELEMETRY ACTIVE" : "IOT GATEWAY OFFLINE"}
+            </span>
+            <h3>Environmental Telemetry</h3>
             <p className="sensor-subtitle">
-              Microclimate telemetry fusion for multi-factor pathogen forecasting.
+              {sensorStatus === "connected"
+                ? `Fused canopy microclimate telemetry from gateway device ${sensorDeviceId}.`
+                : "Sensor server offline. Disease detection will continue normally using visual leaf diagnostics alone."}
             </p>
           </div>
           <span className="integration-badge">
             <Cpu size={14} />
-            <span>Sensor integration — Coming in Phase 2</span>
+            <span>
+              {sensorStatus === "connected"
+                ? `Gateway Link: ${sensorDeviceId}`
+                : "Standalone Diagnostics"}
+            </span>
           </span>
         </div>
 
         <div className="sensors-grid">
           <div className="sensor-item">
             <div className="sensor-item-top">
-              <span className="sensor-name">Temperature</span>
+              <span className="sensor-name">Canopy Temperature</span>
               <Thermometer size={18} color="#d97706" />
             </div>
-            <strong className="sensor-val">-- °C</strong>
+            <strong className="sensor-val">
+              {sensorReading?.temp_avg != null ? `${sensorReading.temp_avg} °C` : "-- °C"}
+            </strong>
             <small className="sensor-hint">Canopy ambient reading</small>
           </div>
 
           <div className="sensor-item">
             <div className="sensor-item-top">
-              <span className="sensor-name">Humidity</span>
+              <span className="sensor-name">Relative Humidity</span>
               <Droplets size={18} color="#2563eb" />
             </div>
-            <strong className="sensor-val">-- %</strong>
-            <small className="sensor-hint">Relative leaf wetness proxy</small>
+            <strong className="sensor-val">
+              {sensorReading?.humidity_avg != null ? `${sensorReading.humidity_avg} %` : "-- %"}
+            </strong>
+            <small className="sensor-hint">Canopy leaf wetness proxy</small>
           </div>
 
           <div className="sensor-item">
             <div className="sensor-item-top">
-              <span className="sensor-name">Soil Moisture</span>
+              <span className="sensor-name">Irrigation EC / TDS</span>
               <Wind size={18} color="#16a34a" />
             </div>
-            <strong className="sensor-val">-- %</strong>
-            <small className="sensor-hint">Root-zone volumetric water</small>
+            <strong className="sensor-val">
+              {sensorReading?.ec != null ? `${sensorReading.ec} µS/cm` : "-- µS/cm"}
+            </strong>
+            <small className="sensor-hint">Nutrient solution salinity</small>
           </div>
         </div>
       </div>

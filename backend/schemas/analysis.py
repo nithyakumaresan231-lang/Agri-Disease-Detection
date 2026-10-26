@@ -1,13 +1,17 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from pydantic import BaseModel
 
 
 class AdvisoryDetails(BaseModel):
-    description: str
-    symptoms: List[str]
-    preventive_measures: List[str]
-    management: List[str]
+    description: str = ''
+    symptoms: List[str] = []
+    preventive_measures: List[str] = []
+    management: List[str] = []
+    environmental_assessment: Optional[str] = None
+    sensor_alerts: List[str] = []
+    sensor_telemetry_used: Optional[Dict[str, Any]] = None
+    data_source: Optional[str] = 'none' 
 
 
 class PredictionResult(BaseModel):

@@ -1,10 +1,28 @@
-__pycache__/
+# Python cache files
+
+**pycache**/
 *.pyc
+
+# Backend local files
+
 backend/uploads/
 backend/agri_advisory.db
+backend/VENV/
+
+# Live sensor data and logs
+
+backend/data/sensor_readings_live.csv
+sensor_integration_docs/cloud_server/server.log
+sensor_integration_docs/cloud_server/server_err.log
+sensor_integration_docs/sensor_data.csv
+sensor_integration_docs/sensor_readings.csv
+
+# Dataset: keep image files eligible for tracking
+
 dataset/*
 !dataset/**/*.jpg
 !dataset/**/*.jpeg
 !dataset/**/*.png
-backend/VENV/
-backend/agri_advisory.db
+
+# Private sensor database configuration
+sensor_integration_docs/cloud_server/mysql_config.json

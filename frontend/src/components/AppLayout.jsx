@@ -10,7 +10,8 @@ import {
   Menu,
   X,
   Leaf,
-  ChevronRight
+  ChevronRight,
+  Cpu
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
@@ -28,6 +29,7 @@ export default function AppLayout() {
   const navItems = [
     { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
     { label: "Disease Detection", path: "/detect", icon: Camera },
+    { label: "Sensor Monitoring", path: "/sensors", icon: Cpu },
     { label: "History", path: "/history", icon: History },
     { label: "Profile", path: "/profile", icon: User },
     { label: "Settings", path: "/settings", icon: Settings },
@@ -37,6 +39,7 @@ export default function AppLayout() {
   const getPageTitle = () => {
     const pathname = location.pathname;
     if (pathname.startsWith("/detect")) return "Disease Detection";
+    if (pathname.startsWith("/sensors")) return "IoT Sensor Monitoring";
     if (pathname.startsWith("/analysis")) return "Analysis Result";
     if (pathname.startsWith("/history")) return "Detection History";
     if (pathname.startsWith("/profile")) return "User Profile";

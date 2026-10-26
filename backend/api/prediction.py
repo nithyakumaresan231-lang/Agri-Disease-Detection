@@ -10,8 +10,11 @@ from database.connection import get_db
 from models.user import User
 from models.analysis import Analysis
 from schemas.analysis import AnalysisResponse, AdvisoryDetails
+from schemas.sensor import SensorReading
 from services.auth_service import get_current_user
 from services.prediction_service import get_prediction_service
+from services.sensor_service import sensor_service
+from services.combined_advisory_service import enrich_advisory
 
 router = APIRouter(tags=["Prediction"])
 
@@ -71,7 +74,7 @@ async def predict(
 
     image_url = f"/uploads/{safe_filename}"
 
-    # 4. Invoke Prediction Service (Mock or ML)
+    # 4. Invoke Plant Disease ML Prediction Service (Leaves ML Model 100% untouched)
     prediction_service = get_prediction_service()
     pred_result = await prediction_service.predict(
         image_bytes=contents,
@@ -81,7 +84,37 @@ async def predict(
         soil_moisture=soil_moisture
     )
 
-    # 5. Persist Analysis record in database linked to authenticated user
+    # 5. Combined Advisory Layer (Integrates valid sensor readings if present)
+    active_sensor_reading = None
+    if temperature is not None or humidity is not None:
+        active_sensor_reading = SensorReading(
+            temp_avg=temperature,
+            humidity_avg=humidity,
+            is_demo=False
+        )
+    else:
+        # Optionally retrieve live sensor readings from verified cloud server if available
+        try:
+            live_sensor_data = await sensor_service.get_latest_reading()
+            if live_sensor_data.status in ("connected", "stale") and live_sensor_data.reading:
+                active_sensor_reading = live_sensor_data.reading
+                if temperature is None:
+                    temperature = active_sensor_reading.temp_avg or active_sensor_reading.temperature1
+                if humidity is None:
+                    humidity = active_sensor_reading.humidity_avg or active_sensor_reading.humidity1
+        except Exception as e:
+            print("[Prediction] Sensor telemetry retrieval skipped:", e)
+
+    is_healthy = pred_result.get("status", "").lower() == "healthy"
+    final_advisory = enrich_advisory(
+        base_advisory=pred_result.get("advisory", {}),
+        crop=pred_result.get("crop", ""),
+        disease=pred_result.get("disease", ""),
+        is_healthy=is_healthy,
+        sensor_reading=active_sensor_reading
+    )
+
+    # 6. Persist Analysis record in database linked to authenticated user
     analysis_record = Analysis(
         user_id=current_user.id,
         image_filename=file.filename or safe_filename,
@@ -93,14 +126,14 @@ async def predict(
         temperature=temperature,
         humidity=humidity,
         soil_moisture=soil_moisture,
-        advisory_data=json.dumps(pred_result["advisory"])
+        advisory_data=json.dumps(final_advisory)
     )
 
     db.add(analysis_record)
     db.commit()
     db.refresh(analysis_record)
 
-    advisory_obj = AdvisoryDetails(**pred_result["advisory"])
+    advisory_obj = AdvisoryDetails(**final_advisory)
 
     return AnalysisResponse(
         id=analysis_record.id,

@@ -1,0 +1,18 @@
+File	                        Purpose
+
+
+
+1.server.py	                Cloud server main file (runs on laptop)
+
+2.schema.sql	                MySQL database schema
+
+3.mysql_config.json	        MySQL connection config
+
+4.commands.json	                Command queue for relay control
+
+5.read.txt	                Setup documentation
+
+6.server.log	                Server logs
+
+
+7.server_err.log	        Server error logs

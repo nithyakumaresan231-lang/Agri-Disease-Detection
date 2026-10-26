@@ -39,17 +39,17 @@ def test_full_flow():
     assert user_me["email"] == "kavitha@agri.org"
     print(f"   Logged in as: {user_me['name']}")
 
-    print("4. Testing /predict with Mock Prediction...")
-    # Create fake image bytes
-    fake_img = io.BytesIO(b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x01\x00H\x00H\x00\x00\xff\xdb")
-    files = {"file": ("tomato_leaf_sample.jpg", fake_img, "image/jpeg")}
+    print("4. Testing /predict with Plant Disease ML Model...")
+    import cv2, numpy as np
+    valid_jpg = cv2.imencode('.jpg', np.zeros((100, 100, 3), dtype=np.uint8))[1].tobytes()
+    files = {"file": ("tomato_leaf_sample.jpg", io.BytesIO(valid_jpg), "image/jpeg")}
     r = client.post("/predict", headers=headers, files=files)
     assert r.status_code == 200, f"Predict failed: {r.status_code} {r.text}"
     analysis = r.json()
     analysis_id = analysis["id"]
-    assert analysis["crop"] == "Tomato"
-    assert analysis["disease"] == "Early Blight"
-    assert analysis["confidence"] == 94.2
+    assert analysis["crop"] is not None
+    assert analysis["disease"] is not None
+    assert analysis["confidence"] > 0
     assert len(analysis["advisory"]["preventive_measures"]) > 0
     print(f"   Prediction succeeded! Analysis ID: {analysis_id}, Crop: {analysis['crop']}, Disease: {analysis['disease']}")
 

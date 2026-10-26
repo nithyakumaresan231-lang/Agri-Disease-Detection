@@ -9,6 +9,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
 import DetectionPage from "./pages/DetectionPage";
+import SensorMonitoringPage from "./pages/SensorMonitoringPage";
 import AnalysisDetailPage from "./pages/AnalysisDetailPage";
 import HistoryPage from "./pages/HistoryPage";
 import ProfilePage from "./pages/ProfilePage";
@@ -36,6 +37,7 @@ function App() {
           >
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/detect" element={<DetectionPage />} />
+            <Route path="/sensors" element={<SensorMonitoringPage />} />
             <Route path="/analysis/:id" element={<AnalysisDetailPage />} />
             <Route path="/history" element={<HistoryPage />} />
             <Route path="/profile" element={<ProfilePage />} />
